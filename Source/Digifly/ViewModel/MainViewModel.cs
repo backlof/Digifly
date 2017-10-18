@@ -42,6 +42,15 @@ namespace Digifly.ViewModel
 			StatusText = "Test";
 			StatusTime = DateTime.Now;
 
+			var comp = _application.GetNewImageComparison();
+			if (!comp.HasFailed)
+			{
+				FirstImage = comp.Value.First.Path;
+				SecondImage = comp.Value.Second.Path;
+				FirstFileName = comp.Value.First.FileName;
+				SecondFileName = comp.Value.Second.FileName;
+			}
+
 
 		}
 
@@ -86,6 +95,62 @@ namespace Digifly.ViewModel
 			{
 				_StatusTime = value;
 				onPropertyChanged("StatusTime");
+			}
+		}
+
+		private string _FirstImage;
+		public string FirstImage
+		{
+			get
+			{
+				return _FirstImage;
+			}
+			set
+			{
+				_FirstImage = value;
+				onPropertyChanged("FirstImage");
+			}
+		}
+
+		private string _SecondImage;
+		public string SecondImage
+		{
+			get
+			{
+				return _SecondImage;
+			}
+			set
+			{
+				_SecondImage = value;
+				onPropertyChanged("SecondImage");
+			}
+		}
+
+		private string _FirstFileName;
+		public string FirstFileName
+		{
+			get
+			{
+				return _FirstFileName;
+			}
+			set
+			{
+				_FirstFileName = value;
+				onPropertyChanged("FirstFileName");
+			}
+		}
+
+		private string _SecondFileName;
+		public string SecondFileName
+		{
+			get
+			{
+				return _SecondFileName;
+			}
+			set
+			{
+				_SecondFileName = value;
+				onPropertyChanged("SecondFileName");
 			}
 		}
 

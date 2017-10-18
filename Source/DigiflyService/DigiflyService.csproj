@@ -112,9 +112,9 @@
     <Compile Include="Repository\Table\ITable.cs" />
     <Compile Include="Repository\Table\Rating.cs" />
     <Compile Include="Service\ApplicationService.cs" />
-    <Compile Include="ILogger.cs" />
     <Compile Include="Result.cs" />
     <Compile Include="Service\Comparison.cs" />
+    <Compile Include="Service\StarRater.cs" />
   </ItemGroup>
   <ItemGroup>
     <None Include="packages.config" />

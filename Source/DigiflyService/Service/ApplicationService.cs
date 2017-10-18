@@ -98,7 +98,9 @@ namespace DigiflyService.Service
 					.Select(x => new
 					{
 						x.FileName,
-						x.Id
+						x.Id,
+						Wins = x.Wins.Count(),
+						Losses = x.Losses.Count()
 					})
 					.Take(2)
 					.ToList();
@@ -108,17 +110,24 @@ namespace DigiflyService.Service
 					return Result<Comparison>.Error(ErrorType.NotEnoughImages);
 				}
 
+				var first = imagesToRate[0];
+				var second = imagesToRate[1];
+
 				return Result.Value(new Comparison
 				{
 					First = new ImageForComparison
 					{
-						Id = imagesToRate[0].Id,
-						FilePath = Path.Combine(_location, imagesToRate[0].FileName)
+						Id = first.Id,
+						Path = Path.Combine(_location, first.FileName),
+						FileName = first.FileName,
+						Rating = StarRater.Rate(first.Wins, first.Losses)
 					},
 					Second = new ImageForComparison
 					{
-						Id = imagesToRate[1].Id,
-						FilePath = Path.Combine(_location, imagesToRate[1].FileName)
+						Id = second.Id,
+						Path = Path.Combine(_location, second.FileName),
+						FileName = second.FileName,
+						Rating = StarRater.Rate(first.Wins, first.Losses)
 					}
 				});
 			}

@@ -178,7 +178,7 @@ namespace DigiflyTest
 			{
 				for (int i = 0; i < count; i++)
 				{
-					var padded = count.ToString().PadLeft(20, '0');
+					var padded = i.ToString().PadLeft(20, '0');
 
 					yield return new Image
 					{

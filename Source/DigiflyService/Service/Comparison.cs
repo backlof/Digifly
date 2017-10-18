@@ -15,6 +15,8 @@ namespace DigiflyService.Service
 	public class ImageForComparison
 	{
 		public int Id { get; set; }
-		public string FilePath { get; set; }
+		public string FileName { get; set; }
+		public string Path { get; set; }
+		public int? Rating { get; set; }
 	}
 }
