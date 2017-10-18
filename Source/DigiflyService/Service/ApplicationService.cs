@@ -16,6 +16,7 @@ namespace DigiflyService.Service
 	{
 		private DigiflyRepository _repository;
 		private string _location;
+		private string newPath;
 
 		public ApplicationService(string location)
 		{
@@ -86,6 +87,85 @@ namespace DigiflyService.Service
 			catch (Exception)
 			{
 				return Result.Fail;
+			}
+		}
+
+		public double GetRating(int wins, int losses)
+		{
+			if (wins == 0 && losses == 0) return 0;
+			else if (losses == 0) return Int32.MaxValue;
+			else if (wins == 0) return -losses;
+			return (double)wins / (double)losses;
+		}
+
+		public Result RenameFilesAfterPlacement()
+		{
+			try
+			{
+				var ticks = DateTime.Now.Ticks;
+
+				var list = _repository.Images.Entries.Select(x => new
+				{
+					Image = x,
+					Wins = x.Wins.Count(),
+					Losses = x.Losses.Count()
+				})
+				.ToList()
+				.Select(x => new
+				{
+					x.Image,
+					Ratio = GetRating(x.Wins, x.Losses)
+				})
+				.OrderByDescending(x => x.Ratio)
+				.Select(x => x.Image)
+				.ToList();
+
+				var itemsToUpdate = list.Select((image, index) =>
+				{
+					var oldPath = Path.Combine(_location, image.FileName);
+					var extension = Path.GetExtension(oldPath);
+					string newFileName = $"{index.ToString().PadLeft(10, '0')}_T{ticks}{extension}";
+					string newPath = Path.Combine(_location, newFileName);
+
+
+					TryMove(oldPath, newPath, out bool moved);
+
+					if (moved)
+					{
+						image.FileName = newFileName;
+					}
+
+					return new
+					{
+						image,
+						moved
+					};
+				})
+				.Where(x => x.moved)
+				.Select(x => x.image)
+				.ToList();
+
+				_repository.Images.Update(itemsToUpdate);
+
+				return Result.Success;
+			}
+			catch (Exception)
+			{
+				return Result.Fail;
+			}
+		}
+
+		private void TryMove(string x, string y, out bool success)
+		{
+			try
+			{
+
+				File.Move(x, y);
+				success = true;
+			}
+			catch (Exception)
+			{
+				success = false;
 			}
 		}
 

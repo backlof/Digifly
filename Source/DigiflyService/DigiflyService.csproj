@@ -111,8 +111,8 @@
     <Compile Include="Repository\Table\Image.cs" />
     <Compile Include="Repository\Table\ITable.cs" />
     <Compile Include="Repository\Table\Rating.cs" />
-    <Compile Include="Service\ApplicationService.cs" />
     <Compile Include="Result.cs" />
+    <Compile Include="Service\ApplicationService.cs" />
     <Compile Include="Service\Comparison.cs" />
     <Compile Include="Service\StarRater.cs" />
   </ItemGroup>

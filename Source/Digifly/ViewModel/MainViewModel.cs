@@ -5,6 +5,7 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
+using System.Windows.Input;
 
 namespace Digifly.ViewModel
 {
@@ -12,46 +13,108 @@ namespace Digifly.ViewModel
 	{
 		private readonly ApplicationService _application;
 
+		public ImageForComparison First { get; set; }
+		public ImageForComparison Second { get; set; }
+
 		public MainViewModel(ApplicationService application)
 		{
 			_application = application;
 
-			_application.UpdateStorage();
-
-
-			//for (int i = 0; i < 500; i++)
-			//{
-			//	var res = _application.GetNewImageComparison();
-			//	if (res.HasFailed)
-			//	{
-			//		var dwg = "";
-			//	}
-			//	else
-			//	{
-			//		_application.RateImage(res.Value.First.Id, res.Value.Second.Id);
-			//	}
-
-
-
-
-
-
-
-			//}
-
-			StatusText = "Test";
+			StatusText = "Updating database...";
 			StatusTime = DateTime.Now;
 
+			var updateResult = _application.UpdateStorage();
+
+			if (updateResult.HasFailed)
+			{
+				// Shut down application
+			}
+
+			StatusText = "Finished updating database";
+			StatusTime = DateTime.Now;
+
+			LoadNewComparison();
+
+		}
+
+		public void LoadNewComparison()
+		{
 			var comp = _application.GetNewImageComparison();
 			if (!comp.HasFailed)
 			{
-				FirstImage = comp.Value.First.Path;
-				SecondImage = comp.Value.Second.Path;
-				FirstFileName = comp.Value.First.FileName;
-				SecondFileName = comp.Value.Second.FileName;
+				First = comp.Value.First;
+				Second = comp.Value.Second;
+
+
+				FirstImage = First.Path;
+				SecondImage = Second.Path;
+				FirstFileName = First.FileName;
+				SecondFileName = Second.FileName;
+
+				FirstRating = First.Rating.HasValue ? First.Rating.Value == 1 ? "1 star" : $"{First.Rating.Value} stars" : "Not rated";
+				SecondRating = Second.Rating.HasValue ? Second.Rating.Value == 1 ? "1 star" : $"{Second.Rating.Value} stars" : "Not rated";
 			}
+		}
 
 
+		public ICommand RateFirstImage
+		{
+			get
+			{
+				return new RelayCommand(ExecuteRateFirstImage, CanRateFirstImage);
+			}
+		}
+
+		public void ExecuteRateFirstImage(object parameter)
+		{
+			_application.RateImage(First.Id, Second.Id);
+			LoadNewComparison();
+		}
+
+		public bool CanRateFirstImage(object parameter)
+		{
+			return true;
+		}
+
+
+
+		public ICommand Close
+		{
+			get
+			{
+				return new RelayCommand(ExecuteClose, CanClose);
+			}
+		}
+
+		public void ExecuteClose(object parameter)
+		{
+			_application.RenameFilesAfterPlacement();
+		}
+
+		public bool CanClose(object parameter)
+		{
+			return true;
+		}
+
+
+
+		public ICommand RateSecondImage
+		{
+			get
+			{
+				return new RelayCommand(ExecuteRateSecondImage, CanRateSecondImage);
+			}
+		}
+
+		public void ExecuteRateSecondImage(object parameter)
+		{
+			_application.RateImage(Second.Id, First.Id);
+			LoadNewComparison();
+		}
+
+		public bool CanRateSecondImage(object parameter)
+		{
+			return true;
 		}
 
 		#region Property
@@ -153,6 +216,36 @@ namespace Digifly.ViewModel
 				onPropertyChanged("SecondFileName");
 			}
 		}
+
+		private string _FirstRating;
+		public string FirstRating
+		{
+			get
+			{
+				return _FirstRating;
+			}
+			set
+			{
+				_FirstRating = value;
+				onPropertyChanged("FirstRating");
+			}
+		}
+
+
+		private string _SecondRating;
+		public string SecondRating
+		{
+			get
+			{
+				return _SecondRating;
+			}
+			set
+			{
+				_SecondRating = value;
+				onPropertyChanged("SecondRating");
+			}
+		}
+
 
 		#endregion
 	}
